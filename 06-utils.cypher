@@ -19,7 +19,8 @@ MATCH (m:Movie)
 
 // producer
 MATCH (n:Actor)-[r:ACTED_IN]->(m:Movie)
-CALL apoc.merge.relationship(n, 'ACTED_IN_' + left(m.released, 4), { }, m ) YIELD rel
+CALL apoc.
+MERGE .relationship(n, 'ACTED_IN_' + left(m.released, 4), { }, m ) YIELD rel
 RETURN COUNT(*) AS `Number of relationships merged`
 
 MATCH (p:Person)-[:ACTED_IN_1995|DIRECTED_1995]-()
@@ -37,19 +38,32 @@ m ,
 RETURN count(*) AS `Number of relationships merged`;
 
 MATCH (n:User)-[r:RATED]->(m:Movie)
-CALL apoc.merge.relationship(n, 'RATED_' + left(m.released, 4), { }, m ) YIELD rel
+CALL apoc.
+MERGE .relationship(n, 'RATED_' + left(m.released, 4), { }, m ) YIELD rel
 RETURN COUNT(*) AS `Number of relationships merged`
-
 
 // Modify this query to use the -[:RATED]->()
 // relationship to  create a new RATED_{rating}
 // relationship between the :User and a :Movie
 MATCH (n:User)-[:RATED]->(m:Movie)
-CALL apoc.merge.relationship(n,
-  'RATED_' + left(m.released,4),
-  {},
-  {},
-  m ,
-  {}
+CALL apoc.
+MERGE .relationship(n,
+'RATED_' + left(m.released, 4),
+{ },
+{ },
+m ,
+{ }
 ) YIELD rel
 RETURN count(*) AS `Number of relationships merged`
+
+// convert a property from string to list
+MATCH (m:Movie)
+ SET m.countries = split(coalesce(m.countries, ""), "|"),
+m.languages = split(coalesce(m.languages, ""), "|"),
+m.genres = split(coalesce(m.genres, ""), "|")
+
+MATCH (m:Movie)
+UNWIND m.genres AS genre
+WITH m, genre
+MERGE (g:Genre {name:genre})
+MERGE (m)-[:IN_GENRE]->(g)
