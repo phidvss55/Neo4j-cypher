@@ -182,7 +182,7 @@ LIMIT 100
 // create rated relationship
 CALL {
   LOAD CSV
-WITH HEADERS
+  WITH HEADERS
   FROM 'https: //data.neo4j.com/importing/2-ratingData.csv'
    AS row
   MATCH (m:Movie { movieId: toInteger(row.movieId) })
@@ -192,3 +192,32 @@ WITH HEADERS
     ON CREATE SET r.rating = toInteger(row.rating),
   r.timestamp = toInteger(row.timestamp)
 }
+
+// HOW MANY UNIQUE GENRES ARE REPRESENTED IN THESE TOP
+MATCH (n:Movie)
+WHERE n.imdbRating IS NOT null AND n.poster IS NOT null
+WITH n {
+  genres: [ (n)-[:IN_GENRE]->(g) | g { .name }]
+}
+ ORDER BY n.imdbRating DESC
+LIMIT 4
+RETURN size(apoc.coll.toSet(apoc.coll.flatten(collect(n.genres)))) AS uniqueGenreCount
+
+// RETURN
+MATCH (:Movie { title: 'Toy Story' })-[:IN_GENRE]->(g:Genre)<-[:IN_GENRE]-(m)
+WHERE m.imdbRating IS NOT null
+WITH g.name AS genre,
+count(m) AS moviesInCommon,
+sum(m.imdbRating) AS total
+RETURN genre, moviesInCommon,
+total/moviesInCommon AS score
+ ORDER BY score DESC
+
+// movie acted by tom hank and have average rate over 4
+WITH 'Tom Hanks' AS theActor
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)<-[r:RATED]-(:User)
+WHERE p.name = theActor
+WITH m, AVG(r.rating) AS avgRating
+WHERE avgRating > 4
+RETURN m.title AS Movie, avgRating AS `AverageRating`
+ ORDER BY avgRating DESC
