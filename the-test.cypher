@@ -124,9 +124,58 @@ CALL {
   OPTIONAL MATCH (p)-[:ACTED_IN]->(m:Movie)
   RETURN m.title + ": " + "Actor" AS work
   
-UNION
+  UNION
   WITH p
   OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
   RETURN m.title+ ": " + "Director" AS work
 }
 RETURN p.name, collect(work)
+
+// using profile to get hit
+PROFILE
+MATCH (a:Actor)
+WHERE a.born.year >= 1980
+// leave off the Movie label to get better performance
+WITH a, [(a)-[:ACTED_IN]->(m)
+WHERE 2000 <= m.year <= 2005 | m.title] AS Movies
+WHERE size(Movies) > 0
+RETURN a.name AS Actor, a.born AS Born, Movies
+
+// count avatar time between release date and reviewd date
+MATCH (u:User)-[r:RATED]-(m:Movie)
+WHERE u.name = 'Angela Thompson'
+WITH count(m) AS NumMovies, collect(duration.between(datetime({ epochseconds:r.timestamp }), date(m.released))) AS ReviewPeriods
+UNWIND ReviewPeriods AS x
+RETURN NumMovies, sum(x), sum(x)/NumMovies
+
+// average test
+MATCH (m:Movie)
+WITH avg(m.imdbVotes) AS AverageVote
+MATCH (m2:Movie)
+WHERE m2.year = 2010 AND m2.imdbVotes > AverageVote
+RETURN AverageVote AS OverallAverageVote, m2.title AS Title , m2.imdbVotes AS AverageVote
+
+// average with between
+MATCH (a:Actor)
+WHERE
+a.born IS NOT null
+ AND a.name STARTS
+WITH 'Tom'
+WITH count(a) AS NumActors, collect(duration.between(date(a.born), date())) AS Ages
+UNWIND Ages AS x
+WITH NumActors, sum(x) AS TotalAges, avg(x) AS AverageAge
+RETURN TotalAges, TotalAges/NumActors, AverageAge
+
+// calculate the percentage
+MATCH (m:Movie)
+WHERE m.year = 2000
+WITH count(*) AS totalMovies
+MATCH ()-[r:RATED]-(m)
+WHERE r.rating > 4 AND m.year = 2000
+WITH count( DISTINCT m) AS goodMovies, totalMovies
+RETURN goodMovies, totalMovies, round(toFloat(goodMovies) / toFloat(totalMovies) * 100) AS PercentGood
+// round(toFloat(goodMovies) / toFloat(totalMovies) * 100) AS PercentGood
+
+// determine percentage from a list
+UNWIND [80, 10, 20, 30, 40, 50, 60, 70] AS x
+RETURN percentileCont(x, .50)

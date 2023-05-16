@@ -4,6 +4,8 @@ ORDER BY: USE TO ORDER
 size: size(collect(a.name)) as castSize
 WITH: USE TO USE WITH PARAMS
 UNION: USE TO COMBINCOMBINE QUERY RESULTS
+RANGE: CREATE A LIST FROM NUMBER
+ex: range(0,1,23,4,5)
 
 min()
 max()
