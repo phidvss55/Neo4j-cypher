@@ -1,6 +1,5 @@
 MATCH (p:Actor)-[:ACTED_IN]-(m:Movie)
-WHERE p.name = 'Tom Hanks' AND
-'Drama' IN m.genres
+WHERE p.name = 'Tom Hanks' AND 'Drama' IN m.genres
 RETURN m.title AS Movie
 
 // use UNWIND to seperate value of a field in Node and insert into a new node
@@ -14,8 +13,7 @@ WITH l, m
 MERGE (m)-[:IN_LANGUAGE]->(l);
 
 // after insert for become a new node, we should delete the value in the previous node
-MATCH (m:Movie)
- SET m.languages = null
+MATCH (m:Movie) SET m.languages = null
 
 // producer
 MATCH (n:Actor)-[r:ACTED_IN]->(m:Movie)
@@ -65,5 +63,5 @@ m.genres = split(coalesce(m.genres, ""), "|")
 MATCH (m:Movie)
 UNWIND m.genres AS genre
 WITH m, genre
-MERGE (g:Genre {name:genre})
+MERGE (g:Genre { name:genre })
 MERGE (m)-[:IN_GENRE]->(g)

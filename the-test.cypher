@@ -2,16 +2,9 @@
 MATCH (u:User)
 DETACH DELETE u;
 
-MATCH (p:Person)
-DETACH DELETE p;
-
-MATCH (m:Movie)
-DETACH DELETE m;
-
+// clean up all
 MATCH (n)
 DETACH DELETE n
-
-// re-import
 
 // transform properties
 MATCH (m:Movie)
@@ -104,7 +97,7 @@ WHERE p.name = actorName
  AND movieTitle CONTAINS mt
 RETURN m.title AS movies, movieTitle
 
-// SUB QUERY WITH PARAMS
+// SUBQUERY WITH PARAMS
 MATCH (m:Movie)
 CALL {
   WITH m
@@ -122,8 +115,7 @@ LIMIT 100
 CALL {
   WITH p
   OPTIONAL MATCH (p)-[:ACTED_IN]->(m:Movie)
-  RETURN m.title + ": " + "Actor" AS work
-  
+  RETURN m.title + ": " + "Actor" AS work 
   UNION
   WITH p
   OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
@@ -179,3 +171,11 @@ RETURN goodMovies, totalMovies, round(toFloat(goodMovies) / toFloat(totalMovies)
 // determine percentage from a list
 UNWIND [80, 10, 20, 30, 40, 50, 60, 70] AS x
 RETURN percentileCont(x, .50)
+
+// find movie that two actors acted_in the same
+MATCH (p1:Person)-[:ACTED_IN]->(m1)
+MATCH (m2)<-[:ACTED_IN]-(p2:Person)
+WHERE p1.name = 'Tom Hanks'
+ AND p2.name = 'Meg Ryan'
+ AND m1 = m2
+RETURN m1.title

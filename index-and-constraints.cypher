@@ -44,3 +44,4 @@ ON EACH [x.<property_key>]
 CREATE FULLTEXT INDEX <index_name> IF NOT EXISTS
 (x:<node_label1> | <node_label2> | ...)
 ON EACH [x.<property_key1>, x.<property_key2>, ...]
+

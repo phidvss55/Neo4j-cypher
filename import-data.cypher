@@ -1,8 +1,7 @@
 // import movie
-LOAD CSV
-WITH HEADERS
-FROM 'https: //data.neo4j.com/importing/2-movieData.csv'
- AS row
+LOAD CSV WITH HEADERS FROM 'https: //data.neo4j.com/importing/2-movieData.csv' AS row FIELDTERMINATOR ','
+CREATE (n:Node { property1: row.field1, property2: row.field2 })
+
 //process only Movie rows
 WITH row
 WHERE row.Entity = "Movie"
@@ -60,27 +59,20 @@ CALL {
 }
 
 // import person
-LOAD CSV
-WITH HEADERS
-FROM 'https: //data.neo4j.com/importing/2-movieData.csv'
- AS row
-WITH row
+LOAD CSV WITH HEADERS FROM 'https: //data.neo4j.com/importing/2-movieData.csv' AS row
+WITH row 
 WHERE row.Entity = "Person"
 RETURN
-toInteger(row.tmdbId),
-toInteger(row.imdbId),
-row.bornIn,
-row.name,
-row.bio,
-row.poster,
-row.url,
+  toInteger(row.tmdbId),
+  toInteger(row.imdbId),
+  row.bornIn,
+  row.name,
+  row.bio,
+  row.poster,
+  row.url
 
-
-CASE row.born WHEN "" THEN null ELSE datetime(row.born) END,
-
-
+CASE row.born WHEN "" THEN null ELSE datetime(row.born) END
 CASE row.died WHEN "" THEN null ELSE datetime(row.died) END
-LIMIT 10
 
 // second way import movie
 CALL {
@@ -221,3 +213,20 @@ WITH m, AVG(r.rating) AS avgRating
 WHERE avgRating > 4
 RETURN m.title AS Movie, avgRating AS `AverageRating`
  ORDER BY avgRating DESC
+
+// import large csv file
+LOAD CSV
+WITH HEADERS
+FROM 'https: //xxx.com/xxx/large-file.csv'
+ AS row
+CALL {
+  WITH row
+// create data in the graph
+  } IN TRANSACTIONS
+
+LOAD CSV WITH HEADERS FROM 'https://data.neo4j.com/importing/MovieDataUnclean.csv' AS row FIELDTERMINATOR ','
+WITH
+  row.title AS Title,
+  row.languages AS Field,
+  split(row.languages,"|") AS FieldList
+RETURN Title, Field, FieldList LIMIT 10

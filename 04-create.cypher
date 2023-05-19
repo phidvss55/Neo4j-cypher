@@ -19,30 +19,13 @@ MERGE (p:Person { name: 'McKenna Grace' })
  SET p.born = 2006
 RETURN p
 
-// Create the relationship between two node
-MATCH (apollo:Movie { title: 'Apollo 13' })
-MATCH (tom:Person { name: 'Tom Hanks' })
-MATCH (meg:Person { name: 'Meg Ryan' })
-MATCH (danny:Person { name: 'Danny DeVito' })
-MATCH (sleep:Movie { title: 'Sleepless in Seattle' })
-MATCH (hoffa:Movie { title: 'Hoffa' })
-MATCH (jack:Person { name: 'Jack Nicholson' })
+MERGE (sandy:User { userId: 534 }) SET sandy.name = "Sandy Jones"
+MERGE (clinton:User { userId: 105 }) SET clinton.name = "Clinton Spencer"
 
-// create the relationships between nodes
+// create the property relationships between nodes
 MERGE (tom)-[:ACTED_IN { role: 'Jim Lovell' }]->(apollo)
-MERGE (tom)-[:ACTED_IN { role: 'Sam Baldwin' }]->(sleep)
-MERGE (meg)-[:ACTED_IN { role: 'Annie Reed' }]->(sleep)
-MERGE (danny)-[:ACTED_IN { role: 'Bobby Ciaro' }]->(hoffa)
 MERGE (danny)-[:DIRECTED]->(hoffa)
 MERGE (jack)-[:ACTED_IN { role: 'Jimmy Hoffa' }]->(hoffa)
-
-// MATCH (a:Actor)-[:ACTED_IN]->(m:Movie)
-// WITH a, m
-// MERGE (r:ROLE {name: 'Role'})
-// MERGE (a)-[:ACT_IN {role: r.name}]->(m)
-// MERGE (a)-[:PLAYED {role: r.name}]->(r)
-// MERGE (r)-[:IN_MOVIE {role: r.name}]->(m)
-// return a,r,m
 
 // final task
 MATCH (a:Actor)-[ac:ACTED_IN]->(m:Movie)
@@ -50,3 +33,9 @@ WITH a, m, ac
 MERGE (r:ROLE { name: ac.role })
 MERGE (a)-[:PLAYED]->(r)
 MERGE (r)-[:IN_MOVIE]->(m)
+
+// Create relationship
+MATCH (jennifer: Person { name: “Jennifer” })
+MATCH (mark: Person { name: "Mark" })
+CREATE (jennifer)-[rel:IS_FRIEND_WITH]->(mark)
+ 
