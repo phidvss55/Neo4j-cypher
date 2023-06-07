@@ -31,10 +31,6 @@ WITH m, genre
 MERGE (g:Genre { name:genre })
 MERGE (m)-[:IN_GENRE]->(g)
 
-// clean up genre property in Movie
-MATCH (m:Movie)
- SET m.genres = null
-
 // checking
 CALL db.schema.visualization
 
@@ -63,16 +59,9 @@ RETURN rec.title, a.name
 //
 MATCH (m:Movie)
 WHERE m.released IS NOT null
-RETURN m.title AS title,
-m.released AS releaseDate
- ORDER BY m.released DESC
+RETURN m.title AS title, m.released AS releaseDate
+ORDER BY m.released DESC
 LIMIT 100
-
-// condition returning data
-MATCH (m:Movie)<-[:ACTED_IN]-(p:Person)
-WHERE p.name = 'Charlie Chaplin'
-RETURN m.title AS movie,
-
 
 CASE
  WHEN m.runtime < 120 THEN "Short"
