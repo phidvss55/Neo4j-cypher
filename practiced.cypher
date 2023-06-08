@@ -16,7 +16,7 @@ CALL {
         .status,
         .homepage,
         runtime: toFloat(row.runtime),
-        release_date: date(datetime({epochmillis: apoc.date.parse(row.release_date, "ms", "dd/MM/yyyy")})),
+        release_date: date(datetime({epochmillis: apoc.date.parse(row.release_date, "ms", "yyyy-MM-dd")})),
         revenue: toFloat(row.revenue),
         popularity: toFloat(row.popularity),
         average_vote: toFloat(row.vote_average),
